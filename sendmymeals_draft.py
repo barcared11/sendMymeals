@@ -1,10 +1,9 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-import openai
-from openai.api_resources.completion import Completion
+import numpy as np
 
 # Load the data
-data = pd.read_csv('/Users/amarahmed/Desktop/sample_food_ingr.csv')
+data = pd.read_csv('/Users/amarahmed/Desktop/sendmymeals/sample_food_ingr.csv')
 
 # Convert the order_datetime column to datetime
 data['order_datetime'] = pd.to_datetime(data['order_datetime'])
@@ -15,35 +14,53 @@ data['day'] = data['order_datetime'].dt.day
 data['month'] = data['order_datetime'].dt.month
 data['year'] = data['order_datetime'].dt.year
 
-# Extract the features and target
-features = data[['dish', 'ingredient', 'cost', 'dish_sold', 'hour', 'day', 'month', 'year', 'wasted']]
-target = data['ingredient_amount']
+# Drop the 'order_datetime' column as it's no longer needed
+data = data.drop(columns=['order_datetime'])
 
-# Fit a Random Forest model
-model = RandomForestRegressor()
-model.fit(features, target)
+# Save the original 'dish' column before one-hot encoding
+original_dish = data['dish'].copy()
 
-# Predict the amount of each ingredient to order
-predictions = model.predict(features)
+# Perform one-hot encoding on the 'dish' column
+data = pd.get_dummies(data, columns=['dish'])
 
-# Write the predictions to a new csv file
-predictions_df = pd.DataFrame(predictions, columns=['ingredient_amount'])
-predictions_df.to_csv('predictions.csv', index=False)
+# Add the original 'dish' column back to the DataFrame
+data['dish'] = original_dish
 
-# Connect to the ChatGPT API
-openai.api_key = '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'
+# Get the list of unique ingredients
+unique_ingredients = data['ingredient'].unique()
 
-# Prepare a message for the ChatGPT API
-message = {
-    'role': 'system',
-    'content': 'You are a helpful assistant.'
-}
+# Initialize an empty DataFrame to store the final predictions
+predictions_df = pd.DataFrame()
 
-# Send the message to the ChatGPT API
-response = Completion.create(engine="text-davinci-002", model="gpt-4.0-turbo", messages=[message], max_tokens=60)
+# Loop through each unique ingredient
+for ingredient in unique_ingredients:
+    # Filter the data for the current ingredient
+    ingredient_data = data[data['ingredient'] == ingredient]
+    
+    # Extract the features and target for the current ingredient
+    features = ingredient_data.drop(columns=['ingredient', 'ingredient_amount', 'dish'])
+    target = ingredient_data['ingredient_amount']
 
-# Get the response from the ChatGPT API
-response_text = response['choices'][0]['message']['content']
+    # Fit a Random Forest model for the current ingredient
+    model = RandomForestRegressor()
+    model.fit(features, target)
 
-# Print the response
-print(response_text)
+    # Predict the amount of the current ingredient to order
+    predictions = model.predict(features)
+    
+    # Compute the cost change
+    old_cost = ingredient_data['ingredient_cost'].mean()
+    new_cost = old_cost * (predictions / ingredient_data['ingredient_amount'].mean())
+    cost_change = np.where(new_cost > old_cost, "up", "down")
+
+    # Add the predictions to the final DataFrame
+    ingredient_predictions = pd.DataFrame({
+        'dish': ingredient_data['dish'],
+        'ingredient': ingredient,
+        'amount': predictions,
+        'cost_change': cost_change
+    })
+    predictions_df = predictions_df.append(ingredient_predictions, ignore_index=True)
+
+# Save the predictions DataFrame to a CSV file
+predictions_df.to_csv('/Users/amarahmed/Desktop/sendmymeals/predictions.csv', index=False)
