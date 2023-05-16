@@ -1,0 +1,18 @@
+dish,ingredient,ingredient_amount,ingredient_cost,dish_sales,order_datetime,ingredient_waste
+"Foie Gras Torchon","Foie Gras",100,50,200,"2023-05-13 18:00:00",5
+"Foie Gras Torchon","Quince Paste",50,10,200,"2023-05-13 18:00:00",2
+"Truffle Risotto","Arborio Rice",200,5,150,"2023-05-13 18:30:00",10
+"Truffle Risotto","Black Truffles",30,70,150,"2023-05-13 18:30:00",3
+"Truffle Risotto","Parmesan",50,8,150,"2023-05-13 18:30:00",2
+"Duck a l'Orange","Duck Breast",150,30,220,"2023-05-13 19:00:00",7
+"Duck a l'Orange","Orange",100,3,220,"2023-05-13 19:00:00",5
+"Duck a l'Orange","Grand Marnier",20,15,220,"2023-05-13 19:00:00",1
+"Lobster Thermidor","Lobster",200,60,250,"2023-05-13 19:30:00",10
+"Lobster Thermidor","Cream",100,4,250,"2023-05-13 19:30:00",5
+"Lobster Thermidor","Parmesan",50,8,250,"2023-05-13 19:30:00",2
+"Caviar Blini","Caviar",30,100,300,"2023-05-13 20:00:00",3
+"Caviar Blini","Blini",100,10,300,"2023-05-13 20:00:00",10
+"Caviar Blini","Crème Fraîche",50,5,300,"2023-05-13 20:00:00",2
+"Truffle Risotto","Arborio Rice",200,5,400,"2023-05-13 20:30:00",10
+"Truffle Risotto","Black Truffles",50,70,400,"2023-05-13 20:30:00",3
+"Truffle Risotto","Parmesan",50,8,400,"2023-05-13 20:30:00",2
